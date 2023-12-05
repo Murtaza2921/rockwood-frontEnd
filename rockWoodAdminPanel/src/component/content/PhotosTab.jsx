@@ -33,6 +33,20 @@ const PhotosTab = ({ isSidebarOpen }) => {
       setIsRenameMode(false);
       setNewImageName('');
       setSelectedImageIndex(null);
+      fetch('http://localhost:4000/api/images/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ images: loadedImages }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Images uploaded successfully:', data);
+        })
+        .catch((error) => {
+          console.error('Error uploading images:', error);
+        });
     });
   };
 
