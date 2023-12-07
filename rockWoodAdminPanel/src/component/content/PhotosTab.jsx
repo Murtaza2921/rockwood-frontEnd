@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
 const PhotosTab = ({ isSidebarOpen }) => {
@@ -7,6 +7,13 @@ const PhotosTab = ({ isSidebarOpen }) => {
   const [isRenameMode, setIsRenameMode] = useState(false);
   const [newImageName, setNewImageName] = useState('');
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [imagesUploaded, setImagesUploaded] = useState(false);
+
+  useEffect(() => {
+    if (imagesUploaded) {
+      fetchImages();
+    }
+  })
 
   const handleImageChange = (event) => {
     const files = event.target.files;
@@ -28,6 +35,7 @@ const PhotosTab = ({ isSidebarOpen }) => {
         });
       })
     ).then((loadedImages) => {
+      setImagesUploaded(true);
       setImages([...images, ...loadedImages]);
       setSelectedImages([]);
       setIsRenameMode(false);
@@ -43,6 +51,7 @@ const PhotosTab = ({ isSidebarOpen }) => {
         .then((response) => response.json())
         .then((data) => {
           console.log('Images uploaded successfully:', data);
+          fetchImages();
         })
         .catch((error) => {
           console.error('Error uploading images:', error);
@@ -68,6 +77,20 @@ const PhotosTab = ({ isSidebarOpen }) => {
   const handleRenameChange = (event) => {
     setNewImageName(event.target.value);
   };
+
+
+
+  const fetchImages = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/images/all');
+      const data = await response.json();
+      setImages(data); // Assuming setImages is a state updater function
+    } catch (error) {
+      console.error('Error fetching images:', error);
+    }
+  };
+
+  console.log("fetching api : " ,fetchImages);
 
   return (
     <div className={`container mx-auto px-4 py-8 ${isSidebarOpen ? 'lg:pl-40' : ''}`}>
