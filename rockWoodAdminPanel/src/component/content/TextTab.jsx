@@ -4,9 +4,9 @@ import DocumentModal from '../popUps/DocumentModel'; // Adjust the path based on
 
 const TextTab = ({ isSidebarOpen }) => {
   const [text, setText] = useState('');
-  const [textPreview, setTextPreview] = useState('');
-  const [charCount, setCharCount] = useState(0);
+   const [charCount, setCharCount] = useState(0);
   const [attachments, setAttachments] = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
   const [newAttachment, setNewAttachment] = useState(null);
   const [documentId, setDocumentId] = useState(null); // Added state for documentId
   const [showModal, setShowModal] = useState(false);
@@ -19,6 +19,7 @@ const TextTab = ({ isSidebarOpen }) => {
 
   const createDocument = async () => {
     try {
+      console.log('attachments : ', attachment)
       const response = await fetch('http://localhost:4000/api/documents/create', {
         method: 'POST',
         headers: {
@@ -53,7 +54,7 @@ const TextTab = ({ isSidebarOpen }) => {
       if (response.ok) {
         const data = await response.json();
         setDocuments(data); // Update the list of documents
-        console.log(data);
+        
       } else {
         console.error('Error getting all documents:', response.statusText);
       }
@@ -78,7 +79,7 @@ const TextTab = ({ isSidebarOpen }) => {
   const handleSaveClick = async () => {
    // alert('Text saved!');
     const preview = text.length > maxCharacters ? text.substring(0, maxCharacters) : text;
-    setTextPreview(preview);
+    
     await createDocument();
     await handleAttachmentUpload();
     await getAllDocuments();
@@ -106,6 +107,7 @@ const TextTab = ({ isSidebarOpen }) => {
       doc._id === selectedDocumentId._id ? { ...doc, content: editedContent } : doc
     );
     setDocuments(updatedDocuments);
+    
   };
 
   const handleAttachmentUpload = () => {
@@ -115,7 +117,7 @@ const TextTab = ({ isSidebarOpen }) => {
         setAttachments([...attachments, { src: reader.result, name: newAttachment.name }]);
         setNewAttachment(null);
       };
-      console.log("attachment here : ",setAttachments)
+       
       reader.readAsDataURL(newAttachment);
     }
   };
@@ -128,7 +130,7 @@ const TextTab = ({ isSidebarOpen }) => {
 
   const handleDeleteDocument = async (documentId) => {
     try {
-      console.log(documentId);
+       
       const response = await fetch(`http://localhost:4000/api/documents/${documentId}`, {
         method: 'DELETE',
       });
@@ -152,8 +154,9 @@ const TextTab = ({ isSidebarOpen }) => {
   };
 
   const handleEditDocument = (document) => {
-    console.log("here is the doc : ", document)
+     
     setSelectedDocumentId(document);
+     
     setShowModal(true)
   };
 
@@ -234,6 +237,8 @@ const TextTab = ({ isSidebarOpen }) => {
     setSelectedDocumentId(documentId);
     // You can now use selectedDocumentId to update or delete the document
   };
+
+ 
   return (
     <div className={`container mx-auto px-0 py-8 ${isSidebarOpen ? 'lg:pl-40' : ''}`}>
       <div className="lg:w-3/4 xl:w-2/3">
@@ -287,26 +292,22 @@ const TextTab = ({ isSidebarOpen }) => {
         </div>
         {/* Attachment Gallery */}
         <div className="grid grid-cols-2 gap-4 mt-4">
-          {attachments.map((attachment, index) => (
-            <div key={index} className="bg-white border rounded overflow-hidden">
-              <img
-                src={attachment.src}
-                alt={attachment.name}
-                className="w-full h-32 object-cover"
-              />
-              <div className="p-2">
-                <p className="font-semibold">{attachment.name}</p>
-                <button
-                  onClick={() => handleRemoveAttachment(index)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  <FaTrash className="mr-2" />
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+  {attachments.map((attachment, index) => (
+    <div key={index} className="bg-white border rounded overflow-hidden">
+      <div className="p-2 flex items-center justify-between">
+        <p className="font-semibold flex-grow">{attachment.name}</p>
+        <button
+          onClick={() => handleRemoveAttachment(index)}
+          className="bg-red-500 text-white px-2 py-1 rounded"
+        >
+          <FaTrash className="mr-2" />
+           
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
 {/* Document Gallery */}
 <div className="grid grid-cols-2 gap-4 mt-4">
          {documents.map((document) => (
@@ -315,7 +316,9 @@ const TextTab = ({ isSidebarOpen }) => {
     className="bg-white border rounded overflow-hidden cursor-pointer"
     //onClick={() => handleViewDocument(document)}
   >
+     
     <div className="p-2 flex justify-between items-center">
+      
       <p className="font-semibold">{document.name}</p>
       <div className="flex space-x-2">
                 <FaEye onClick={() => handleViewDocument(document)} />
@@ -339,10 +342,12 @@ const TextTab = ({ isSidebarOpen }) => {
             document={selectedDocumentId}
             onClose={() => setShowModal(false)}
             onSave={handleSaveEditedDocument}
+            isEdit = {isDoumentEdit}
+            
           />
         )}
         {/* Update and Delete buttons */}
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <button
             className="bg-yellow-500 text-white px-4 py-2 rounded-md ml-2"
             onClick={handleUpdateClick}
@@ -357,7 +362,7 @@ const TextTab = ({ isSidebarOpen }) => {
           >
             Delete
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
